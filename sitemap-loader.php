@@ -79,7 +79,7 @@ class GoogleSitemapGeneratorLoader {
 	public static function SetupQueryVars() {
 
 		add_filter('query_vars', array(__CLASS__, 'RegisterQueryVars'), 1, 1);
-
+		add_action('parse_query', array(__CLASS__, 'FixWpQuery'), 10, 1);
 		add_filter('template_redirect', array(__CLASS__, 'DoTemplateRedirect'), 1, 0);
 
 	}
@@ -182,6 +182,19 @@ class GoogleSitemapGeneratorLoader {
 	public static function DeactivatePlugin() {
 		delete_option("sm_rewrite_done");
 		wp_clear_scheduled_hook('sm_ping_daily');
+	}
+
+
+	/**
+	 * Alter WP Query vars: turn is_feed on and is_404 off.
+	 * @link https://github.com/pluginkollektiv/cachify/issues/60
+	 * @param WP_Query $wp_query
+	 */
+	public static function FixWpQuery($wp_query) {
+		if(!empty($wp_query->query_vars["xml_sitemap"])) {
+			$wp_query->is_404 = false;
+			$wp_query->is_feed = true;
+		}
 	}
 
 
