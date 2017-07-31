@@ -1014,7 +1014,7 @@ final class GoogleSitemapGenerator {
 	 */
 	public function GetExcludedPostIDs() {
 
-		$excludes = (array)$this->GetOption('b_exclude');
+		$excludes = apply_filters('sm_exclude_post_ids', (array) $this->GetOption('b_exclude'));
 
 		//Exclude front page page if defined
 		if (get_option('show_on_front') == 'page' && get_option('page_on_front')) {
