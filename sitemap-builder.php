@@ -195,15 +195,6 @@ class GoogleSitemapGeneratorStandardBuilder {
 					//Full URL to the post
 					$permalink = get_permalink($post);
 
-					/**
-					 * Filters the permalink of the current post
-					 * @since 2.7.0
-					 * @param string $permalink The permalink
-					 * @param WP_Post $post The post
-					 */
-					$permalink = apply_filters('sm_post_permalink', $permalink, $post);
-
-
 					//Exclude the home page and placeholder items by some plugins. Also include only internal links.
 					if(
 						!empty($permalink)

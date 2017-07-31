@@ -200,7 +200,7 @@ class GoogleSitemapGeneratorStatus {
 class GoogleSitemapGeneratorPage {
 
 	/**
-	 * @var string $_url Sets the URL or the relative path to the blog dir of the page
+	 * @var string $_url Sets the URL or the relative path to the site dir of the page
 	 */
 	public $_url;
 
@@ -395,7 +395,7 @@ class GoogleSitemapGeneratorDebugEntry extends GoogleSitemapGeneratorXmlEntry {
 class GoogleSitemapGeneratorSitemapEntry {
 
 	/**
-	 * @var string $_url Sets the URL or the relative path to the blog dir of the page
+	 * @var string $_url Sets the URL or the relative path to the site dir of the page
 	 */
 	protected $_url;
 
@@ -660,7 +660,7 @@ class GoogleSitemapGeneratorPrioByAverageProvider implements  GoogleSitemapGener
 }
 
 /**
- * Class to generate a sitemaps.org Sitemaps compliant sitemap of a WordPress blog.
+ * Class to generate a sitemaps.org Sitemaps compliant sitemap of a WordPress site.
  *
  * @package sitemap
  * @author Arne Brachhold
@@ -726,11 +726,6 @@ final class GoogleSitemapGenerator {
 	 * @var bool Defines if the options have been loaded
 	 */
 	private $optionsLoaded = false;
-
-	/**
-	 * @var string[] The list of cached sitemap transients
-	 */
-	private $savedTransients = null;
 
 
 	/*************************************** CONSTRUCTION AND INITIALIZING ***************************************/
@@ -848,9 +843,10 @@ final class GoogleSitemapGenerator {
 	 * @since 3.0
 	 * @return string The full url
 	 */
-	public static function GetBackLink() {
+	public static function GetBackLink($extra = '') {
 		global $wp_version;
-		$url = admin_url("options-general.php?page=" . GoogleSitemapGeneratorLoader::GetBaseName());
+		$url = admin_url("options-general.php?page=" .
+			GoogleSitemapGeneratorLoader::GetBaseName() . $extra);
 		return $url;
 	}
 
@@ -878,7 +874,7 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * Returns if the blog is running in multi site mode
+	 * Returns if the site is running in multi site mode
 	 * @since 4.0
 	 * @return bool
 	 */
@@ -1147,7 +1143,6 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_b_stats"] = false; //Send anonymous stats
 		$this->options["sm_b_pingmsn"] = true; //Auto ping MSN
 		$this->options["sm_b_autozip"] = true; //Try to gzip the output
-		$this->options["sm_b_distransientcache"] = false; //Disable caching the sitemaps in a transient
 		$this->options["sm_b_memory"] = ''; //Set Memory Limit (e.g. 16M)
 		$this->options["sm_b_time"] = -1; //Set time limit in seconds, 0 for unlimited, -1 for disabled
 		$this->options["sm_b_style_default"] = true; //Use default style
@@ -1191,6 +1186,7 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_i_donated"] = false; //Did you donate? Thank you! :)
 		$this->options["sm_i_hide_donated"] = false; //And hide the thank you..
 		$this->options["sm_i_install_date"] = time(); //The installation date
+		$this->options["sm_i_hide_survey"] = false; //Hide the survey note
 		$this->options["sm_i_hide_note"] = false; //Hide the note which appears after 30 days
 		$this->options["sm_i_hide_works"] = false; //Hide the "works?" message which appears after 15 days
 		$this->options["sm_i_hide_donors"] = false; //Hide the list of donations
@@ -1211,14 +1207,10 @@ final class GoogleSitemapGenerator {
 
 		$this->InitOptions();
 
-		//Delete the options cache. This is unfortunately required for some hosts,
-		//but it is not that bad since it will only clear the options and only if a
-		//sitemap is actually served or the sitemap admin page is requested.
-		wp_cache_delete('alloptions', 'options');
-
 		//First init default values, then overwrite it with stored values so we can add default
 		//values with an update which get stored by the next edit.
 		$storedOptions = get_option("sm_options");
+
 		if($storedOptions && is_array($storedOptions)) {
 			foreach($storedOptions AS $k => $v) {
 				if(array_key_exists($k,$this->options))	$this->options[$k] = $v;
@@ -1226,7 +1218,6 @@ final class GoogleSitemapGenerator {
 		} else update_option("sm_options", $this->options); //First time use, store default values
 
 		$this->optionsLoaded = true;
-
 	}
 
 	/**
@@ -1338,65 +1329,6 @@ final class GoogleSitemapGenerator {
 		}
 	}
 
-	/**
-	 * Returns the keys of all sitemap transients
-	 *
-	 * @since 4.0.8
-	 * @return string[] The list of saved transients
-	 */
-	public function GetSavedTransients() {
-		if($this->savedTransients == null) {
-			$savedTransients = get_option("sm_transients");
-			if (is_array($savedTransients)) {
-				$this->savedTransients = $savedTransients;
-			} else {
-				$this->savedTransients = array();
-			}
-		}
-
-		return $this->savedTransients;
-	}
-
-	/**
-	 * Saves the list of saved transients
-	 *
-	 * @param $savedTransients string[]
-	 * @since 4.0.8
-	 */
-	public function SetSavedTransients($savedTransients) {
-		$this->savedTransients = $savedTransients;
-		update_option("sm_transients", $this->savedTransients);
-	}
-
-	/**
-	 * @param $transientKey string Adds a transient to the saved transients list
-	 * @param $options array Options
-	 *
-	 * @since 4.0.8
-	 */
-	public function AddSavedTransient($transientKey, $options) {
-		$transients = $this->GetSavedTransients();
-
-		$transients[$transientKey] = array(
-			"key" => $transientKey,
-			"options" => $options
-		);
-
-		$this->SetSavedTransients($transients);
-	}
-
-	/**
-	 * Clears all cached sitemaps
-	 * @since 4.0.8
-	 */
-	public function ClearTransientCache() {
-		$transients = $this->GetSavedTransients();
-		foreach($transients AS $transientKey=>$transientInfo) {
-			delete_transient($transientKey);
-		}
-		$this->SetSavedTransients(array());
-	}
-
 
 	/*************************************** URL AND PATH FUNCTIONS ***************************************/
 
@@ -1431,7 +1363,7 @@ final class GoogleSitemapGenerator {
 		$p = $this->GetPluginPath();
 		if(file_exists($p . "sitemap.xsl")) {
 			$url = $this->GetPluginUrl();
-			//If called over the admin area using HTTPS, the stylesheet would also be https url, even if the blog frontend is not.
+			//If called over the admin area using HTTPS, the stylesheet would also be https url, even if the site frontend is not.
 			if(substr(get_bloginfo('url'), 0, 5) != "https" && substr($url, 0, 5) == "https") $url = "http" . substr($url, 5);
 			return $url . 'sitemap.xsl';
 		}
@@ -1492,7 +1424,7 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * Returns if there is still an old sitemap file in the blog directory
+	 * Returns if there is still an old sitemap file in the site directory
 	 *
 	 * @return Boolean True if a sitemap file still exists
 	 */
@@ -1502,7 +1434,7 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * Renames old sitemap files in the blog directory from previous versions of this plugin
+	 * Renames old sitemap files in the site directory from previous versions of this plugin
 	 * @return bool True on success
 	 */
 	public function DeleteOldFiles() {
@@ -1677,108 +1609,60 @@ final class GoogleSitemapGenerator {
 			if(file_exists($f)) require_once($f);
 		}
 
-		if(!$html) {
+		if($html) {
+			ob_start();
+		} else {
 			header('Content-Type: text/xml; charset=utf-8');
 		}
 
-		$transientKey = "sm_cache_" . md5(serialize($options));
-		$cachedSitemap = get_transient($transientKey);
 
-		if(!empty($cachedSitemap)) {
+		if(empty($options["params"]) || $options["params"] == "index") {
 
-			$allTransients = $this->GetSavedTransients();
-			if(!empty($allTransients[$transientKey])) {
-				$cacheOptions = $allTransients[$transientKey]["options"];
+			$this->BuildSitemapHeader("index");
 
-				if (
-					(!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']) && @strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $cacheOptions["created"])
-					|| (!empty($_SERVER['HTTP_IF_NONE_MATCH']) && @trim($_SERVER['HTTP_IF_NONE_MATCH']) == $cacheOptions["hash"])
-				) {
-					header("HTTP/1.1 304 Not Modified");
-					exit;
-				}
+			do_action('sm_build_index', $this);
 
-				header("Last-Modified: " . gmdate("D, d M Y H:i:s", $cacheOptions["created"]) . " GMT");
-				header("Etag: " . $cacheOptions["hash"]);
-			}
+			$this->BuildSitemapFooter("index");
+			$this->AddEndCommend($startTime, $startQueries, $startMemory);
 
-			echo $cachedSitemap . "<!-- cached in transient-->";
+
 		} else {
-
-			if(!$this->GetOption("b_distransientcache")) {
-				ob_start();
-			}
-
-			if($html) {
-				ob_start();
-			}
-
-			if (empty($options["params"]) || $options["params"] == "index") {
-
-				$this->BuildSitemapHeader("index");
-
-				do_action('sm_build_index', $this);
-
-				$this->BuildSitemapFooter("index");
-				$this->AddEndCommend($startTime, $startQueries, $startMemory);
-
-
+			$allParams = $options["params"];
+			$type = $params = null;
+			if(strpos($allParams, "-") !== false) {
+				$type = substr($allParams, 0, strpos($allParams, "-"));
+				$params = substr($allParams, strpos($allParams, "-") + 1);
 			} else {
-				$allParams = $options["params"];
-				$type = $params = null;
-				if (strpos($allParams, "-") !== false) {
-					$type = substr($allParams, 0, strpos($allParams, "-"));
-					$params = substr($allParams, strpos($allParams, "-") + 1);
-				} else {
-					$type = $allParams;
-				}
-
-				$this->BuildSitemapHeader("sitemap");
-
-				do_action("sm_build_content", $this, $type, $params);
-
-				$this->BuildSitemapFooter("sitemap");
-
-				$this->AddEndCommend($startTime, $startQueries, $startMemory);
+				$type = $allParams;
 			}
 
-			if ($html) {
-				$xmlSource = ob_get_clean();
+			$this->BuildSitemapHeader("sitemap");
 
-				// Load the XML source
-				$xml = new DOMDocument;
-				$xml->loadXML($xmlSource);
+			do_action("sm_build_content", $this, $type, $params);
 
-				$xsl = new DOMDocument;
-				$xsl->load($this->GetPluginPath() . "sitemap.xsl");
+			$this->BuildSitemapFooter("sitemap");
 
-				// Configure the transformer
-				$proc = new XSLTProcessor;
-				$proc->importStyleSheet($xsl); // attach the xsl rules
+			$this->AddEndCommend($startTime, $startQueries, $startMemory);
+		}
 
-				$domTranObj = $proc->transformToDoc($xml);
+		if($html) {
+			$xmlSource = ob_get_clean();
 
-				// this will also output doctype and comments at top level
-				foreach ($domTranObj->childNodes as $node) {
-					echo $domTranObj->saveXML($node) . "\n";
-				}
-			}
+			// Load the XML source
+			$xml = new DOMDocument;
+			$xml->loadXML($xmlSource);
 
-			if(!$this->GetOption("b_distransientcache")) {
-				$content = trim(ob_get_contents());
-				set_transient($transientKey, $content, 60 * 60 * 8);
+			$xsl = new DOMDocument;
+			$xsl->load($this->GetPluginPath() . "sitemap.xsl");
 
-				$cacheOptions =  array(
-					"created"=>time(),
-					"hash" => md5($content)
-				);
-				$this->AddSavedTransient($transientKey, $cacheOptions);
+			// Configure the transformer
+			$proc = new XSLTProcessor;
+			$proc->importStyleSheet($xsl); // attach the xsl rules
 
-				header("Last-Modified: " . gmdate("D, d M Y H:i:s", $cacheOptions["created"]) . " GMT");
-				header("Etag: " . $cacheOptions["hash"]);
+			$domTranObj = $proc->transformToDoc($xml);
 
-				ob_end_flush();
-			}
+			// this will also output doctype and comments at top level
+			foreach($domTranObj->childNodes as $node) echo $domTranObj->saveXML($node) . "\n";
 		}
 
 		if($packed) ob_end_flush();
@@ -1877,7 +1761,7 @@ final class GoogleSitemapGenerator {
 	 */
 	public function DoRobots() {
 		$this->Initate();
-		if($this->GetOption('b_robots') === true && get_option('blog_public') == 1) {
+		if($this->GetOption('b_robots') === true) {
 
 			$smUrl = $this->GetXmlUrl();
 
@@ -2171,45 +2055,22 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * @param $value int The value
-	 *
-	 * @return int The rounded value
-	 */
-	private function RoundStatisticValue($value) {
-		if($value < 35) $value = 25;
-		else if($value < 75) $value = 50;
-		else if($value < 125) $value = 100;
-		else if($value < 2000) $value = round($value / 200) * 200;
-		else if($value < 10000) $value = round($value / 1000) * 1000;
-		else $value = round($value / 10000) * 10000;
-
-		return $value;
-	}
-
-	/**
 	 * Sends anonymous statistics (disabled by default)
 	 */
-	public function SendStats() {
+	private function SendStats() {
 		global $wp_version, $wpdb;
+		$postCount = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.post_status='publish'");
 
-		//Number of posts
-		$postCount = $this->RoundStatisticValue($wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.post_status='publish'"));
-
-		//Number of comments
-		$commentsCount = wp_count_comments();
-		$commentsCount = $this->RoundStatisticValue($commentsCount->approved);
-
-		//PHP Version rounded to the minor (5.2 instead of 5.2.1-debian12)
-		$phpVersionInfo = explode(".",PHP_VERSION);
-		$phpVersion = $phpVersionInfo[0] . "." . $phpVersionInfo[1];
-
-		//Server software without version number
-		$serverSoftwareInfo = explode("/",strtolower($_SERVER["SERVER_SOFTWARE"]));
-		$serverSoftware = $serverSoftwareInfo[0];
-
-		//WP Version without any beta/alpha tags
-		$wpVersionInfo = explode("-",$wp_version);
-		$wpVersion = $wpVersionInfo[0];
+		//Send simple post count statistic to get an idea in which direction this plugin should be optimized
+		//Only a rough number is required, so we are rounding things up
+		if($postCount <=5) $postCount = 5;
+		else if($postCount < 25) $postCount = 10;
+		else if($postCount < 35) $postCount = 25;
+		else if($postCount < 75) $postCount = 50;
+		else if($postCount < 125) $postCount = 100;
+		else if($postCount < 2000) $postCount = round($postCount / 200) * 200;
+		else if($postCount < 10000) $postCount = round($postCount / 1000) * 1000;
+		else $postCount = round($postCount / 10000) * 10000;
 
 		$postData = array(
 			"v" => 1,
@@ -2220,13 +2081,11 @@ final class GoogleSitemapGenerator {
 			"ec" => "ping",
 			"ea" => "auto",
 			"ev" => 1,
-			"ul" => get_bloginfo('language'),
-			"cd1" => $wpVersion,
+			"cd1" => $wp_version,
 			"cd2" => $this->GetVersion(),
-			"cd3" => $phpVersion,
+			"cd3" => PHP_VERSION,
 			"cd4" => $postCount,
-			"cd5" => $commentsCount,
-			"cd6" => $serverSoftware,
+			"ul" => get_bloginfo('language'),
 		);
 
 		$this->RemoteOpen('http://www.google-analytics.com/collect', 'post', $postData);
@@ -2386,5 +2245,28 @@ final class GoogleSitemapGenerator {
 		}
 
 		return (boolean) $value;
+	}
+
+
+
+	public function ShowSurvey() {
+		$this->LoadOptions();
+
+		return (isset($_REQUEST['sm_survey']) || !$this->GetOption('i_hide_survey'));
+	}
+
+	public function HtmlSurvey() {
+		?>
+		<div class="updated">
+			<strong>
+				<p>
+					<?php echo str_replace('%s', 'https://w3edge.wufoo.com/forms/mex338s1ysw3i0/',
+						__('Thank you for using Google XML Sitemaps! <a href="%s" target="_blank">Please help us improve by taking this short survey!</a>','sitemap'));
+					?> <a href="<?php echo $this->GetBackLink() . "&amp;sm_hide_survey=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('Don\'t show this anymore', 'sitemap'); ?></small></a>
+				</p>
+			</strong>
+			<div style="clear:right;"></div>
+		</div>
+		<?php
 	}
 }
