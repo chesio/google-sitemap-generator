@@ -1897,7 +1897,7 @@ final class GoogleSitemapGenerator {
 			if ($this->GetOption("b_pingmsn")) {
 				$pings["bing"] = array(
 					"name" => "Bing",
-					"url" => "http://www.bing.com/webmaster/ping.aspx?siteMap=%s",
+					"url" => "http://www.bing.com/ping?sitemap=%s",
 					"check" => " "
 					// No way to check, response is IP-language-based :-(
 				);
