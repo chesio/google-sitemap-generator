@@ -1186,7 +1186,6 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_i_donated"] = false; //Did you donate? Thank you! :)
 		$this->options["sm_i_hide_donated"] = false; //And hide the thank you..
 		$this->options["sm_i_install_date"] = time(); //The installation date
-		$this->options["sm_i_hide_survey"] = false; //Hide the survey note
 		$this->options["sm_i_hide_note"] = false; //Hide the note which appears after 30 days
 		$this->options["sm_i_hide_works"] = false; //Hide the "works?" message which appears after 15 days
 		$this->options["sm_i_hide_donors"] = false; //Hide the list of donations
@@ -2245,28 +2244,5 @@ final class GoogleSitemapGenerator {
 		}
 
 		return (boolean) $value;
-	}
-
-
-
-	public function ShowSurvey() {
-		$this->LoadOptions();
-
-		return (isset($_REQUEST['sm_survey']) || !$this->GetOption('i_hide_survey'));
-	}
-
-	public function HtmlSurvey() {
-		?>
-		<div class="updated">
-			<strong>
-				<p>
-					<?php echo str_replace('%s', 'https://w3edge.wufoo.com/forms/mex338s1ysw3i0/',
-						__('Thank you for using Google XML Sitemaps! <a href="%s" target="_blank">Please help us improve by taking this short survey!</a>','sitemap'));
-					?> <a href="<?php echo $this->GetBackLink() . "&amp;sm_hide_survey=true"; ?>" style="float:right; display:block; border:none;"><small style="font-weight:normal; "><?php _e('Don\'t show this anymore', 'sitemap'); ?></small></a>
-				</p>
-			</strong>
-			<div style="clear:right;"></div>
-		</div>
-		<?php
 	}
 }

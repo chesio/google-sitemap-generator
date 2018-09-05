@@ -20,3 +20,4 @@ At the moment the same as of legacy plugin.
 ### Tweaks
 
 * Remove minimum PHP (5.2) and WordPress (3.3) version checks.
+* Remove survey nag and related functionality.
