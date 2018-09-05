@@ -15,7 +15,7 @@ At the moment the same as of legacy plugin.
 
 ### Features
 
-* Added `sm_exclude_post_ids` filter to allow excluding of posts dynamically.
+* Add `sm_exclude_post_ids` filter to allow excluding of posts dynamically.
 
 ### Tweaks
 
