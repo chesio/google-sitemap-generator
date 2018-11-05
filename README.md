@@ -12,7 +12,7 @@ At the moment the same as of legacy plugin.
 
 * Set WP Query variables in `parse_query` action already.
 * Fix URL of HTTP request used to [ping Bing](https://www.bing.com/webmaster/help/how-to-submit-sitemaps-82a15bd4).
-* Unquote placeholders for `wpdb::prepare()` - see #1.
+* Unquote placeholders for `wpdb::prepare()` - see [#1](https://github.com/chesio/google-sitemap-generator/issues/1).
 
 ### Features
 
