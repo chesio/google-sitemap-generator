@@ -111,7 +111,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 					{$wpdb->posts} p
 				WHERE
 					p.post_password = ''
-					AND p.post_type = '%s'
+					AND p.post_type = %s
 					AND p.post_status = 'publish'
 					AND YEAR(p.post_date_gmt) = %d
 					AND MONTH(p.post_date_gmt) = %d
@@ -129,7 +129,7 @@ class GoogleSitemapGeneratorStandardBuilder {
 					{$wpdb->posts} p
 				WHERE
 					p.post_password = ''
-					AND p.post_type = '%s'
+					AND p.post_type = %s
 					AND p.post_status = 'publish'
 					{$exPostSQL}
 					{$exCatSQL}
