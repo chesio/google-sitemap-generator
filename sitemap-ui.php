@@ -188,7 +188,7 @@ class GoogleSitemapGeneratorUI {
 				echo '<p style="font-weight:bold; color:red; padding:5px; border:1px red solid; text-align:center;">DO NOT POST THIS INFORMATION ON PUBLIC PAGES LIKE SUPPORT FORUMS AS IT MAY CONTAIN PASSWORDS OR SECRET SERVER INFORMATION!</p>';
 				echo "<h3>WordPress and PHP Information</h3>";
 				echo '<p>WordPress ' . $GLOBALS['wp_version'] . ' with ' . ' DB ' . $GLOBALS['wp_db_version'] . ' on PHP ' . phpversion() . '</p>';
-				echo '<p>Plugin version: ' . $this->sg->GetVersion() . ' (' . $this->sg->GetSvnVersion() . ')';
+				echo '<p>Plugin version: ' . $this->sg->GetVersion();
 				echo '<h4>Environment</h4>';
 				echo "<pre>";
 				$sc = $_SERVER;

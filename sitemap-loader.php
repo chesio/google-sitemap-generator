@@ -13,12 +13,6 @@
 class GoogleSitemapGeneratorLoader {
 
 	/**
-	 * @var string Version of the generator in SVN
-	 */
-	private static $svnVersion = '$Id$';
-
-
-	/**
 	 * Enabled the sitemap plugin with registering all required hooks
 	 *
 	 * @uses add_action Adds actions for admin menu, executing pings and handling robots.txt
@@ -57,7 +51,7 @@ class GoogleSitemapGeneratorLoader {
 		}
 
 		//Fix rewrite rules if not already done on activation hook. This happens on network activation for example.
-		if (get_option("sm_rewrite_done", null) != self::$svnVersion) {
+		if (get_option("sm_rewrite_done", null) != self::GetVersion()) {
 			add_action('wp_loaded', array(__CLASS__, 'ActivateRewrite'), 9999, 1);
 		}
 
@@ -148,7 +142,7 @@ class GoogleSitemapGeneratorLoader {
 		/** @var $wp_rewrite WP_Rewrite */
 		global $wp_rewrite;
 		$wp_rewrite->flush_rules(false);
-		update_option("sm_rewrite_done", self::$svnVersion);
+		update_option("sm_rewrite_done", self::GetVersion());
 	}
 
 	/**
@@ -437,10 +431,6 @@ class GoogleSitemapGeneratorLoader {
 			$GLOBALS["sm_version"] = $data['Version'];
 		}
 		return $GLOBALS["sm_version"];
-	}
-
-	public static function GetSvnVersion() {
-		return self::$svnVersion;
 	}
 
 	public static function FilterGitHubUpdaterOverrideDotOrg($overrides) {

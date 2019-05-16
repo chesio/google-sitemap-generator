@@ -22,4 +22,5 @@ At the moment the same as of legacy plugin.
 
 * Remove minimum PHP (5.2) and WordPress (3.3) version checks.
 * Remove survey nag and related functionality.
+* Remove functionality that depended on Subversion (SVN) being used for code versioning.
 * Integrate with [GitHub Updater](https://github.com/afragen/github-updater) - the plugin can only be updated from GitHub, never from WordPress.org Plugin Directory.

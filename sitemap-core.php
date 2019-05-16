@@ -817,16 +817,6 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * Returns the SVN version of the generator
-	 *
-	 * @since 4.0
-	 * @return string The SVN version string
-	 */
-	public static function GetSvnVersion() {
-		return GoogleSitemapGeneratorLoader::GetSvnVersion();
-	}
-
-	/**
 	 * Returns a link pointing to a specific page of the authors website
 	 *
 	 * @since 3.0
