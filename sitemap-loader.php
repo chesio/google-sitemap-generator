@@ -15,7 +15,7 @@ class GoogleSitemapGeneratorLoader {
 	/**
 	 * @var string Version of the generator in SVN
 	 */
-	private static $svnVersion = '$Id$';
+	private static $svnVersion = '$Id: sitemap-loader.php 937300 2014-06-23 18:04:11Z arnee $';
 
 
 	/**

@@ -1,7 +1,7 @@
 <?php
 /*
 
- $Id$
+ $Id: sitemap-builder.php 1026247 2014-11-15 16:47:36Z arnee $
 
 */
 /**

@@ -1,7 +1,7 @@
 <?php
 /*
 
- $Id$
+ $Id: sitemap-core.php 935247 2014-06-19 17:13:03Z arnee $
 
 */
 
@@ -340,7 +340,7 @@ class GoogleSitemapGeneratorPage {
 
 		$r = "";
 		$r .= "\t<url>\n";
-		$r .= "\t\t<loc>" . $this->EscapeXML($this->_url) . "</loc>\n";
+		$r .= "\t\t<loc>" . $this->EscapeXML(esc_url_raw($this->_url)) . "</loc>\n";
 		if($this->_lastMod > 0) $r .= "\t\t<lastmod>" . date('Y-m-d\TH:i:s+00:00', $this->_lastMod) . "</lastmod>\n";
 		if(!empty($this->_changeFreq)) $r .= "\t\t<changefreq>" . $this->_changeFreq . "</changefreq>\n";
 		if($this->_priority !== false && $this->_priority !== "") $r .= "\t\t<priority>" . number_format($this->_priority, 1) . "</priority>\n";
@@ -451,7 +451,7 @@ class GoogleSitemapGeneratorSitemapEntry {
 
 		$r = "";
 		$r .= "\t<sitemap>\n";
-		$r .= "\t\t<loc>" . $this->EscapeXML($this->_url) . "</loc>\n";
+		$r .= "\t\t<loc>" . $this->EscapeXML(esc_url_raw($this->_url)) . "</loc>\n";
 		if($this->_lastMod > 0) $r .= "\t\t<lastmod>" . date('Y-m-d\TH:i:s+00:00', $this->_lastMod) . "</lastmod>\n";
 		$r .= "\t</sitemap>\n";
 		return $r;
@@ -1686,7 +1686,7 @@ final class GoogleSitemapGenerator {
 				? $this->GetDefaultStyle() : $this->GetOption('b_style'));
 
 		if(!empty($styleSheet)) {
-			$this->AddElement(new GoogleSitemapGeneratorXmlEntry('<' . '?xml-stylesheet type="text/xsl" href="' . $styleSheet . '"?' . '>'));
+			$this->AddElement(new GoogleSitemapGeneratorXmlEntry('<' . '?xml-stylesheet type="text/xsl" href="' . esc_url( $styleSheet ) . '"?' . '>'));
 		}
 
 		$this->AddElement(new GoogleSitemapGeneratorDebugEntry("sitemap-generator-url=\"http://www.arnebrachhold.de\" sitemap-generator-version=\"" . $this->GetVersion() . "\""));

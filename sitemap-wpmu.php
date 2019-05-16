@@ -1,7 +1,7 @@
 <?php
 
 /*
- * $Id$
+ * $Id: sitemap-wpmu.php 534582 2012-04-21 22:25:36Z arnee $
  *
  * Google XML Sitemaps Generator for WordPress MU activation
  * ==============================================================================
