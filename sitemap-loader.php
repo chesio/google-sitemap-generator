@@ -442,6 +442,11 @@ class GoogleSitemapGeneratorLoader {
 	public static function GetSvnVersion() {
 		return self::$svnVersion;
 	}
+
+	public static function FilterGitHubUpdaterOverrideDotOrg($overrides) {
+		$overrides[] = 'google-sitemap-generator/sitemap.php';
+		return $overrides;
+	}
 }
 
 //Enable the plugin for the init hook, but only if WP is loaded. Calling this php file directly will do nothing.
@@ -454,4 +459,8 @@ if(defined('ABSPATH') && defined('WPINC')) {
 	//Don't wait until init with this, since other plugins might flush the rewrite rules in init already...
 	GoogleSitemapGeneratorLoader::SetupQueryVars();
 	GoogleSitemapGeneratorLoader::SetupRewriteHooks();
+
+	// Never ever let GitHub Updater update this plugin from WordPress.org Plugins Directory.
+	// See: https://github.com/afragen/github-updater/wiki/WordPress.org-Directory
+	add_filter('github_updater_override_dot_org', array('GoogleSitemapGeneratorLoader', 'FilterGitHubUpdaterOverrideDotOrg'));
 }

@@ -23,6 +23,7 @@
  Author URI: http://www.arnebrachhold.de/
  Text Domain: sitemap
  Domain Path: /lang
+ GitHub Plugin URI: https://github.com/chesio/google-sitemap-generator
 
 
  Copyright 2005 - 2018 ARNE BRACHHOLD  (email : himself - arnebrachhold - de)
