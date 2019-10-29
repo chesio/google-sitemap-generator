@@ -1878,17 +1878,16 @@ final class GoogleSitemapGenerator {
 			if ($this->GetOption("b_ping")) {
 				$pings["google"] = array(
 					"name" => "Google",
-					"url" => "http://www.google.com/webmasters/sitemaps/ping?sitemap=%s",
-					"check" => "successfully"
+					"url" => "https://www.google.com/ping?sitemap=%s",
+					"check" => "Your Sitemap has been successfully added to our list of Sitemaps to crawl."
 				);
 			}
 
 			if ($this->GetOption("b_pingmsn")) {
 				$pings["bing"] = array(
 					"name" => "Bing",
-					"url" => "http://www.bing.com/ping?sitemap=%s",
-					"check" => " "
-					// No way to check, response is IP-language-based :-(
+					"url" => "https://www.bing.com/ping?sitemap=%s",
+					"check" => "Thanks for submitting your Sitemap."
 				);
 			}
 
