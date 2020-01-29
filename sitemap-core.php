@@ -1130,7 +1130,6 @@ final class GoogleSitemapGenerator {
 		$this->options = array();
 		$this->options["sm_b_prio_provider"] = "GoogleSitemapGeneratorPrioByCountProvider"; //Provider for automatic priority calculation
 		$this->options["sm_b_ping"] = true; //Auto ping Google
-		$this->options["sm_b_stats"] = false; //Send anonymous stats
 		$this->options["sm_b_pingmsn"] = true; //Auto ping MSN
 		$this->options["sm_b_autozip"] = true; //Try to gzip the output
 		$this->options["sm_b_memory"] = ''; //Set Memory Limit (e.g. 16M)
@@ -1179,7 +1178,6 @@ final class GoogleSitemapGenerator {
 		$this->options["sm_i_hide_note"] = false; //Hide the note which appears after 30 days
 		$this->options["sm_i_hide_works"] = false; //Hide the "works?" message which appears after 15 days
 		$this->options["sm_i_hide_donors"] = false; //Hide the list of donations
-		$this->options["sm_i_hash"] = substr(sha1(sha1(get_bloginfo('url'))),0,20); //Partial hash for GA stats, NOT identifiable!
 		$this->options["sm_i_lastping"] = 0; //When was the last ping
 		$this->options["sm_i_supportfeed"] = true; //shows the support feed
 		$this->options["sm_i_supportfeed_cache"] = 0; //Last refresh of support feed
@@ -2043,43 +2041,6 @@ final class GoogleSitemapGenerator {
 	}
 
 	/**
-	 * Sends anonymous statistics (disabled by default)
-	 */
-	private function SendStats() {
-		global $wp_version, $wpdb;
-		$postCount = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} p WHERE p.post_status='publish'");
-
-		//Send simple post count statistic to get an idea in which direction this plugin should be optimized
-		//Only a rough number is required, so we are rounding things up
-		if($postCount <=5) $postCount = 5;
-		else if($postCount < 25) $postCount = 10;
-		else if($postCount < 35) $postCount = 25;
-		else if($postCount < 75) $postCount = 50;
-		else if($postCount < 125) $postCount = 100;
-		else if($postCount < 2000) $postCount = round($postCount / 200) * 200;
-		else if($postCount < 10000) $postCount = round($postCount / 1000) * 1000;
-		else $postCount = round($postCount / 10000) * 10000;
-
-		$postData = array(
-			"v" => 1,
-			"tid" => "UA-65990-26",
-			"cid" => $this->GetOption('i_hash'),
-			"aip" => 1, //Anonymize
-			"t" => "event",
-			"ec" => "ping",
-			"ea" => "auto",
-			"ev" => 1,
-			"cd1" => $wp_version,
-			"cd2" => $this->GetVersion(),
-			"cd3" => PHP_VERSION,
-			"cd4" => $postCount,
-			"ul" => get_bloginfo('language'),
-		);
-
-		$this->RemoteOpen('http://www.google-analytics.com/collect', 'post', $postData);
-	}
-
-	/**
 	 * Returns the number of seconds the support feed should be cached (1 week)
 	 *
 	 * @return int The number of seconds
@@ -2119,11 +2080,6 @@ final class GoogleSitemapGenerator {
 
 		if($blogUpdate >= $yesterday && ($lastPing==0 || $lastPing <= $yesterday)) {
 			$this->SendPing();
-		}
-
-		//Send statistics if enabled (disabled by default)
-		if($this->GetOption('b_stats')) {
-			$this->SendStats();
 		}
 
 		//Cache the support feed so there is no delay when loading the user interface
