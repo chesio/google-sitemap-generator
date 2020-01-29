@@ -24,4 +24,5 @@ At the moment the same as of legacy plugin.
 * Remove survey nag and related functionality.
 * Removed optional usage tracking via Google Analytics.
 * Remove functionality that depended on Subversion (SVN) being used for code versioning.
+* Simplify ping response check: do not parse response body.
 * Integrate with [GitHub Updater](https://github.com/afragen/github-updater) - the plugin can only be updated from GitHub, never from WordPress.org Plugin Directory.

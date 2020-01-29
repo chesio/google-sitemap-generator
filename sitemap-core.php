@@ -1877,7 +1877,6 @@ final class GoogleSitemapGenerator {
 				$pings["google"] = array(
 					"name" => "Google",
 					"url" => "https://www.google.com/ping?sitemap=%s",
-					"check" => "Your Sitemap has been successfully added to our list of Sitemaps to crawl."
 				);
 			}
 
@@ -1885,7 +1884,6 @@ final class GoogleSitemapGenerator {
 				$pings["bing"] = array(
 					"name" => "Bing",
 					"url" => "https://www.bing.com/ping?sitemap=%s",
-					"check" => "Thanks for submitting your Sitemap."
 				);
 			}
 
@@ -1895,7 +1893,7 @@ final class GoogleSitemapGenerator {
 
 				$pingres = $this->RemoteOpen($url);
 
-				if ($pingres === null || $pingres === false || strpos($pingres, $service["check"]) === false) {
+				if (!$pingres) {
 					$status->EndPing($serviceId, false);
 					trigger_error("Failed to ping $serviceId: " . htmlspecialchars(strip_tags($pingres)), E_USER_NOTICE);
 				} else {
